@@ -1,0 +1,16 @@
+{
+  "name": "escaperoom",
+  "version": "0.0.1",
+  "description": "an escape the room adventure for stsebs",
+  "dependencies": {
+    "express": "^4.17.1",
+    "formidable": "^2.0.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "nodemon": "^2.0.15",
+    "socket.io": "^4.1.2"
+  },
+  "scripts": {
+    "start": "nodemon index.js --ignore 'public/*.js' --ignore *.json"
+  }
+}
