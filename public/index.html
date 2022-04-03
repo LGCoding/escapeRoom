@@ -1,161 +1,343 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Escape The School</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <script src="app.js"></script>
+    <script
+      src="easy.qrcode.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script src="html5-qrcode.min.js"></script>
 
-<head>
-  <title>Escape The School</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <link rel="shortcut icon" href="favicon.png" type="image/png">
-  <script src="app.js"></script>
-  <script src="easy.qrcode.min.js" type="text/javascript" charset="utf-8"></script>
-  <script src="html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-  <div id="outMostDiv">
-    <ul class="navBar">
-      <li>
-        <p class="navActive" onclick="navBarClick(this,'home')">Home</p>
-      </li>
-      <li>
-        <p class="" onclick="navBarClick(this,'cards')">Cards</p>
-      </li>
-      <li>
-        <p class="" onclick="navBarClick(this,'locks')">Locks</p>
-      </li>
-      <li style="float: right; border-left: 1px solid #bbb;">
-        <p class="" onclick="navBarClick(this,'about')">About</p>
-      </li>
-    </ul>
-    <div id="pages">
-      <div class="page pageActive" id="homePageDiv">
-        Welcome Saint Sebastion's Semivirtual escape the room<br><br>
-        <div style="width: 500px" id="reader"></div>
-        <!-- Scan Qrcode: <button class="clickyButton" id="scanQrcode">Scan</button><br> -->
-        <p class="admin">Create Qrcode:</p> <button class="clickyButton admin" onclick='
-            document.getElementById("qrcodeMaker").style.display="block" ;' id="createQrcode">Create</button>
-        <div id="lockMakerOuter">
-          <form id="qrcodeMaker" onsubmit="return qrcode()" action="fileupload" method="post"
-            enctype="multipart/form-data">
-            <p style="margin: 0; text-align: center;">Qrcode Maker</p>
-            <label for="qrcodeNameInput">Qrcode Name:</label>
-            <input required type="text" name="qrcodeName" id="qrcodeNameInput" /><br>
-            <label for="qrcodeCards">Cards:</label>
-            <input type="text" required class="clickyButton CardInput" style="background-color: black;" id="qrcodeCards"
-              name="qrcodeCards" /><br>
-            <label for="qrcodeLock">Lock:</label>
-            <input type="text" required class="clickyButton LockInput" style="background-color: black;" id="qrcodeLock"
-              name="qrcodeLock" /><br>
-            <button type="submit" class="clickyButton" id="submitQrcodeMaker">Submit</button>
-            <button type="button" onclick="
-              document.getElementById('qrcodeMaker').style.display = 'none';" id="quitQrcodeMaker">X</button>
-            <div id="qrcode"></div>
-          </form>
-        </div>
-      </div>
-      <div class="page" id="cardsPageDiv">
-        <p class="admin">Create Card:</p> <button class="clickyButton admin" onclick="openCardMaker()"
-          id="createCard">Create</button><br>
-        <p class="admin">Edit Card:</p> <button class="clickyButton admin" onclick="editCards()"
-          id="editCard">Edit</button><br>
-        <div style="border: .02rem solid;"></div>Cards<br>
-
-        <div id="cardMakerOuter">
-
-
-          <form id="cardMaker" onsubmit="return fetchpostCard();" method="post" enctype="multipart/form-data">
-            <p style="margin: 0; text-align: center;">Card Maker</p>
-            <label for="cardNameInput">Card Name:</label>
-            <input required type="text" name="cardName" id="cardNameInput" /><br>
-            <input required multiple="false" type="file" class="inputfile"
-              data-multiple-caption="{count} files selected" name="cardImageInput" id="cardImageInput"
-              accept="image/*" />
-            <label id="cardImageLabel" for="cardImageInput">Upload image</label><br>
-            <label for="sizeX">Width:</label> <input name="sizeX" type="number" value="150" id="sizeX" /><br>
-            <label for="sizeY">Height:</label> <input name="sizeY" type="number" value="200" id="sizeY" /><br>
-            <label for="start">Start:</label> <input type="checkbox" id="start" name="start" value="Start"><br>
-            <button type="submit" class="clickyButton" id="submitCardMaker">Submit</button>
-            <button type="button" onclick="document.getElementById('cardImageInput').required = true;
-              isCardEdit = false; keepImageCard = false; document.getElementById('cardMaker').style.display='none';"
-              id="quitCardMaker">X</button>
-          </form>
-        </div>
-      </div>
-      <div class="page" id="cardPlayPageDiv">Card Play area</div>
-      <div class="page" id="locksPageDiv">
-        <p class="admin">Create Lock:</p> <button class="clickyButton admin" onclick="openLockMaker()"
-          id="createLock">Create</button><br>
-        <p class="admin">Edit Lock:</p> <button class="clickyButton admin" onclick="isLockEdit = !isLockEdit"
-          id="editLock">Edit</button><br>
-        <div style="border: .02rem solid;"></div>Locks<br>
-        <div id="lockMakerOuter">
-          <div id="lockOpener">
-            <p style="margin: 0; text-align: center;">Open Lock</p>
-            Name: <span id="lockOpenerName">Placeholder</span><br>
-            Combination: <input minlength="4" maxlength="4" type="text" name="lockOpenerInput" id="lockOpenerInput"><br>
-            <div style="margin: 0; text-align: center; padding-top:.5rem;"><img width="200" height="200" src="lock.png"
-                alt=""></div>
-            <button type="button" class="clickyButton" id="submitLockOpener">Submit</button>
-
-            <button type="button" onclick="
-              document.getElementById('lockOpener').style.display='none';" id="quitLockOpener">X</button>
+  <body>
+    <div id="outMostDiv">
+      <ul class="navBar">
+        <li>
+          <p class="navActive" onclick="navBarClick(this,'home')">Home</p>
+        </li>
+        <li>
+          <p class="" onclick="navBarClick(this,'cards')">Cards</p>
+        </li>
+        <li>
+          <p class="" onclick="navBarClick(this,'videos')">Videos</p>
+        </li>
+        <li>
+          <p class="" onclick="navBarClick(this,'locks')">Locks</p>
+        </li>
+        <li style="float: right; border-left: 1px solid #bbb;">
+          <p class="" onclick="navBarClick(this,'about')">About</p>
+        </li>
+      </ul>
+      <div id="pages">
+        <div class="page pageActive" id="homePageDiv">
+          Welcome Saint Sebastion's Semivirtual escape the room<br /><br />
+          <div style="width: 500px;" id="reader"></div>
+          <!-- Scan Qrcode: <button class="clickyButton" id="scanQrcode">Scan</button><br> -->
+          <p class="admin">Create Qrcode:</p>
+          <button
+            class="clickyButton admin"
+            onclick='
+            document.getElementById("qrcodeMaker").style.display="block" ;'
+            id="createQrcode"
+          >
+            Create
+          </button>
+          <div id="lockMakerOuter">
+            <form
+              id="qrcodeMaker"
+              onsubmit="return qrcode()"
+              action="fileupload"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <p style="margin: 0; text-align: center;">Qrcode Maker</p>
+              <label for="qrcodeNameInput">Qrcode Name:</label>
+              <input
+                required
+                type="text"
+                name="qrcodeName"
+                id="qrcodeNameInput"
+              /><br />
+              <label for="qrcodeCards">Cards:</label>
+              <input
+                type="text"
+                required
+                class="clickyButton CardInput"
+                style="background-color: black;"
+                id="qrcodeCards"
+                name="qrcodeCards"
+              /><br />
+              <label for="qrcodeLock">Lock:</label>
+              <input
+                type="text"
+                required
+                class="clickyButton LockInput"
+                style="background-color: black;"
+                id="qrcodeLock"
+                name="qrcodeLock"
+              /><br />
+              <button type="submit" class="clickyButton" id="submitQrcodeMaker">
+                Submit
+              </button>
+              <button
+                type="button"
+                onclick="
+              document.getElementById('qrcodeMaker').style.display = 'none';"
+                id="quitQrcodeMaker"
+              >
+                X
+              </button>
+              <div id="qrcode"></div>
+            </form>
           </div>
-          <form id="lockMaker" onsubmit="return fetchpostLock()" action="fileupload" method="post"
-            enctype="multipart/form-data">
-            <p style="margin: 0; text-align: center;">Lock Maker</p>
-            <label for="lockNameInput">Lock Name:</label>
-            <input required type="text" name="lockName" id="lockNameInput" /><br>
-            <label for="locksResults">Cards:</label>
-            <input type="text" required class="clickyButton CardInput" style="background-color: black;"
-              id="locksResults" name="locksResults" /><br>
-            <label for="locksResultsRemove">Remove:</label>
-            <input type="text" required class="clickyButton CardInput" style="background-color: black;"
-              id="locksResultsRemove" name="locksResultsRemove" /><br>
-            <label for="comboInput">Combination:</label> <input type="text" minlength="4" maxlength="4" value="0000"
-              name="Combination" id="comboInput" /><br>
-            <label for="displayInput">Display Names:</label> <input type="text" value="" minlength="3" maxlength="3"
-              name="displayInput" id="displayInput" required /><br>
-            <input type="file" multiple="false" class="inputfile" data-multiple-caption="{count} files selected"
-              name="openLockImageInput" id="openLockImageInput" accept="image/*, video/*" />
-            <label id="openLockImageLabel" for="openLockImageInput">Upload image</label><br>
-            <button type="submit" class="clickyButton" id="submitLockMaker">Submit</button>
-            <button type="button" onclick="
-              isLockEdit = false; keepImageLock = false; document.getElementById('lockMaker').style.display='none';"
-              id="quitLockMaker">X</button>
-          </form>
         </div>
+        <div class="page" id="cardsPageDiv">
+          <p class="admin">Create Card:</p>
+          <button
+            class="clickyButton admin"
+            onclick="openCardMaker()"
+            id="createCard"
+          >
+            Create</button
+          ><br />
+          <p class="admin">Edit Card:</p>
+          <button
+            class="clickyButton admin"
+            onclick="editCards()"
+            id="editCard"
+          >
+            Edit</button
+          ><br />
+          <div style="border: 0.02rem solid;"></div>
+          Cards<br />
+
+          <div id="cardMakerOuter">
+            <form
+              id="cardMaker"
+              onsubmit="return fetchpostCard();"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <p style="margin: 0; text-align: center;">Card Maker</p>
+              <label for="cardNameInput">Card Name:</label>
+              <input
+                required
+                type="text"
+                name="cardName"
+                id="cardNameInput"
+              /><br />
+              <input
+                required
+                multiple="false"
+                type="file"
+                class="inputfile"
+                data-multiple-caption="{count} files selected"
+                name="cardImageInput"
+                id="cardImageInput"
+                accept="image/*"
+              />
+              <label id="cardImageLabel" for="cardImageInput"
+                >Upload image</label
+              ><br />
+              <label for="sizeX">Width:</label>
+              <input name="sizeX" type="number" value="150" id="sizeX" /><br />
+              <label for="sizeY">Height:</label>
+              <input name="sizeY" type="number" value="200" id="sizeY" /><br />
+              <label for="start">Start:</label>
+              <input
+                type="checkbox"
+                id="start"
+                name="start"
+                value="Start"
+              /><br />
+              <button type="submit" class="clickyButton" id="submitCardMaker">
+                Submit
+              </button>
+              <button
+                type="button"
+                onclick="document.getElementById('cardImageInput').required = true;
+              isCardEdit = false; keepImageCard = false; document.getElementById('cardMaker').style.display='none';"
+                id="quitCardMaker"
+              >
+                X
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="page" id="videosPageDiv">
+          Videos
+          <div style="border: 0.02rem solid;"></div>
+          <br />
+        </div>
+        <div class="page" id="locksPageDiv">
+          <p class="admin">Create Lock:</p>
+          <button
+            class="clickyButton admin"
+            onclick="openLockMaker()"
+            id="createLock"
+          >
+            Create</button
+          ><br />
+          <p class="admin">Edit Lock:</p>
+          <button
+            class="clickyButton admin"
+            onclick="isLockEdit = !isLockEdit"
+            id="editLock"
+          >
+            Edit</button
+          ><br />
+          <div style="border: 0.02rem solid;"></div>
+          Locks<br />
+          <div id="lockMakerOuter">
+            <div id="lockOpener">
+              <p style="margin: 0; text-align: center;">Open Lock</p>
+              Name: <span id="lockOpenerName">Placeholder</span><br />
+              Combination:
+              <input
+                minlength="4"
+                maxlength="4"
+                type="text"
+                name="lockOpenerInput"
+                id="lockOpenerInput"
+              /><br />
+              <div style="margin: 0; text-align: center; padding-top: 0.5rem;">
+                <img width="200" height="200" src="lock.png" alt="" />
+              </div>
+
+              <button type="button" class="clickyButton" id="submitLockOpener">
+                Submit
+              </button>
+
+              <button
+                type="button"
+                onclick="
+              document.getElementById('lockOpener').style.display='none';"
+                id="quitLockOpener"
+              >
+                X
+              </button>
+            </div>
+            <form
+              id="lockMaker"
+              onsubmit="return fetchpostLock()"
+              action="fileupload"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <p style="margin: 0; text-align: center;">Lock Maker</p>
+              <label for="lockNameInput">Lock Name:</label>
+              <input
+                required
+                type="text"
+                name="lockName"
+                id="lockNameInput"
+              /><br />
+              <label for="locksResults">Cards:</label>
+              <input
+                type="text"
+                required
+                class="clickyButton CardInput"
+                style="background-color: black;"
+                id="locksResults"
+                name="locksResults"
+              /><br />
+              <label for="locksResultsRemove">Remove:</label>
+              <input
+                type="text"
+                required
+                class="clickyButton CardInput"
+                style="background-color: black;"
+                id="locksResultsRemove"
+                name="locksResultsRemove"
+              /><br />
+              <label for="comboInput">Combination:</label>
+              <input
+                type="text"
+                minlength="4"
+                maxlength="4"
+                value="0000"
+                name="Combination"
+                id="comboInput"
+              /><br />
+              <label for="displayInput">Display Names:</label>
+              <input
+                type="text"
+                value=""
+                minlength="3"
+                maxlength="3"
+                name="displayInput"
+                id="displayInput"
+                required
+              /><br />
+              <input
+                type="file"
+                multiple="false"
+                class="inputfile"
+                data-multiple-caption="{count} files selected"
+                name="openLockImageInput"
+                id="openLockImageInput"
+                accept="image/*, video/*"
+              />
+              <label id="openLockImageLabel" for="openLockImageInput"
+                >Upload image</label
+              ><br />
+              <button type="submit" class="clickyButton" id="submitLockMaker">
+                Submit
+              </button>
+              <button
+                type="button"
+                onclick="
+              isLockEdit = false; keepImageLock = false; document.getElementById('lockMaker').style.display='none';"
+                id="quitLockMaker"
+              >
+                X
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="page" id="aboutPageDiv">about</div>
       </div>
-      <div class="page" id="aboutPageDiv">about</div>
     </div>
-  </div>
 
-  <div id="hoverDiv" class="noClickThrough">
-    <form id="loginDiv" class="innerHoverElement">
-      Login: If it is the first time it will register you<br>
-      <label for="email">Email</label><br>
-      <input required type="email" id="email"><br>
-      <label for="password">Password</label><br>
-      <input required type="password" id="password"><br><br>
-      <button class="clickyButton" id="loginButton">Login</button>
-    </form>
+    <div id="hoverDiv" class="noClickThrough">
+      <form id="loginDiv" class="innerHoverElement">
+        Login: If it is the first time it will register you<br />
+        <label for="email">Email</label><br />
+        <input required type="email" id="email" /><br />
+        <label for="password">Password</label><br />
+        <input required type="password" id="password" /><br /><br />
+        <button class="clickyButton" id="loginButton">Login</button>
+      </form>
 
-    <div id="emojiKeyboard" class="innerHoverElement">
-      Emojies
+      <div id="emojiKeyboard" class="innerHoverElement">
+        Emojies
+      </div>
+      <div id="cardInputSelector" class="innerHoverElement">
+        Cards<br />
+        <br id="cardInputSelectorBr" /><button
+          type="submit"
+          class="clickyButton"
+          id="cardInputSelectorButton"
+        >
+          Submit
+        </button>
+      </div>
+      <div id="lockInputSelector" class="innerHoverElement">
+        Locks<br />
+        <br id="lockInputSelectorBr" /><button
+          type="submit"
+          class="clickyButton"
+          id="lockInputSelectorButton"
+        >
+          Submit
+        </button>
+      </div>
     </div>
-    <div id="cardInputSelector" class="innerHoverElement">
-      Cards<br>
-      <br id="cardInputSelectorBr"><button type="submit" class="clickyButton"
-        id="cardInputSelectorButton">Submit</button>
-    </div>
-    <div id="lockInputSelector" class="innerHoverElement">
-      Locks<br>
-      <br id="lockInputSelectorBr"><button type="submit" class="clickyButton"
-        id="lockInputSelectorButton">Submit</button>
-    </div>
-  </div>
-
-</body>
-
+  </body>
 </html>
