@@ -18,13 +18,19 @@ body {
 }
 
 .videos {
-  margin: 0.25rem;
   max-width: 300px;
+  border-radius: 0.75rem;
+
 }
+
 .videoDiv {
+  margin: 0.25rem;
   padding: 0.15rem;
   background-color: var(--light-bg-color);
-  border-radius: 0.05rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  border: 0.5rem groove var(--dark-bg-color);
+  display: inline-block;
 }
 
 body {
