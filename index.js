@@ -342,7 +342,7 @@ setInterval(function () {
         wasChangeLocks = false;
     }
 }, 10000);
-
+console.log(process.env.PORT)
 server.listen(process.env.PORT || 3000, () => {
     console.log("listening on *:"+ process.env.PORT || 3000);
 });
