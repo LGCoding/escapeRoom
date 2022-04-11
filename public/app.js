@@ -305,7 +305,7 @@ socket.on("goodLog", function (value, value2) {
 });
 
 socket.on("badLog", function (value) {
-  makePopup("Wrong Password");
+  makePopup("Wrong PA33WORD");
 });
 
 socket.on("reload", function (value) {
