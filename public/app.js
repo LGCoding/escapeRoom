@@ -324,7 +324,7 @@ function makePopup(text) {
   el.innerHTML = text;
   setTimeout(() => {
     if (el) el.remove();
-  }, 1000);
+  }, 3000);
   popupDiv.appendChild(el);
 }
 //------------------------------No clue------------------------------
@@ -855,28 +855,12 @@ function qrcode() {
     logoBackgroundTransparent: true,
 
     onRenderingEnd: () => {
-      var dataUrl = document
-        .getElementById("qrcode")
-        .getElementsByTagName("canvas")[0]
-        .toDataURL(); //attempt to save base64 string to server using this var
-      var windowContent = "<!DOCTYPE html>";
-      windowContent += "<html>";
-      windowContent += "<head><title>Print canvas</title></head>";
-      windowContent += "<body style='text-align:center'>";
-      windowContent += `<p style="font-size: 20rem; padding:0; margin:0;">${
-        document.getElementById("qrcodeNameInput").value
-      }</p>`;
-      windowContent += '<img src="' + dataUrl + '">';
-      windowContent += "</body>";
-      windowContent += "</html>";
-      let printWin = window.open("", "");
-      printWin.document.open();
-      printWin.document.write(windowContent);
-      printWin.document.close();
-      printWin.focus();
-      printWin.print();
-      printWin.addEventListener("afterprint", function () {
-        printWin.close();
+      printJS({
+        printable: "qrcode",
+        type: "html",
+        header: `<p style="text-align:center; font-size: 7rem; padding:0">${
+          document.getElementById("qrcodeNameInput").value
+        }</p>`,
       });
       document
         .getElementById("qrcode")
