@@ -30,6 +30,7 @@ let cards = [];
 let videos = [];
 let allCards = [];
 let locks = [];
+let allLocks = [];
 let isCardEdit = false;
 let isLockEdit = false;
 let keepImageLock = false;
@@ -238,16 +239,16 @@ function lockFocus() {
     i.remove();
   }
   let lockInputSelectorBr = document.getElementById("lockInputSelectorBr");
-  for (let i in locks) {
-    if (!locks[i].start) {
+  for (let i in allLocks) {
+    if (!allLocks[i].start) {
       let item = document.createElement("div");
       item.className = "lockItem";
       let checkboxButton = document.createElement("input");
       checkboxButton.className = "lockItemCheckbox";
-      checkboxButton.setAttribute("name", locks[i].name);
+      checkboxButton.setAttribute("name", allLocks[i].name);
       checkboxButton.type = "checkbox";
       item.appendChild(checkboxButton);
-      item.innerHTML += "<br>" + locks[i].displayName;
+      item.innerHTML += "<br>" + allLocks[i].displayName;
 
       lockInputSelector.insertBefore(item, lockInputSelectorBr);
     }
@@ -710,6 +711,10 @@ socket.on("sendLockData", function (value) {
       }
     });
   }
+});
+
+socket.on("sendAllLockData", function (value) {
+  allLocks = value;
 });
 
 //edit cards
