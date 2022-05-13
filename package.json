@@ -11,6 +11,6 @@
     "socket.io": "^4.1.2"
   },
   "scripts": {
-    "start": "nodemon index.js --ignore 'public/' --ignore *.json"
+    "start": "nodemon index.js --ignore 'public/' --ignore locks.json --ignore userData.json --ignore cards.json"
   }
 }

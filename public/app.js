@@ -28,11 +28,15 @@ let keyboardTarget, hideKeyboard, cardInputTarget, lockInputTarget;
 
 let cards = [];
 let videos = [];
+let users = [];
 let allCards = [];
 let locks = [];
+let progs = [];
 let allLocks = [];
 let isCardEdit = false;
 let isLockEdit = false;
+let isCardDelete = false;
+let isLockDelete = false;
 let keepImageLock = false;
 let keepImageCard = false;
 
@@ -497,7 +501,7 @@ function fetchpostCard() {
 
 socket.on("sendCardData", function (value) {
   cards = value;
-  reloadCards();
+  makeCards();
 });
 
 socket.on("sendVideoData", function (value) {
@@ -540,30 +544,32 @@ socket.on("sendVideoData", function (value) {
   }
 });
 
-function reloadCards() {
+function makeCards() {
   let cardsItems = document.querySelectorAll(".cards");
   for (let i of cardsItems) {
     i.remove();
   }
-  for (let i in cards) {
+  let uCards = cards;
+  if (isCardEdit || isCardDelete) uCards = allCards;
+  for (let i in uCards) {
     let cardBase = document.createElement("div");
-    cardBase.setAttribute("namel", cards[i].name);
+    cardBase.setAttribute("namel", uCards[i].name);
     cardBase.className = "cards";
     let cardImage = document.createElement("img");
-    cardImage.src = "cardImages/" + cards[i].name + "." + cards[i].type;
-    cardImage.width = cards[i].sizeX;
-    cardBase.style.width = cards[i].sizeX + "px";
-    cardImage.height = cards[i].sizeY;
-    cardBase.style.height = cards[i].sizeY + "px";
+    cardImage.src = "cardImages/" + uCards[i].name + "." + uCards[i].type;
+    cardImage.width = uCards[i].sizeX;
+    cardBase.style.width = uCards[i].sizeX + "px";
+    cardImage.height = uCards[i].sizeY;
+    cardBase.style.height = uCards[i].sizeY + "px";
     cardBase.appendChild(cardImage);
     document.getElementById("cardsPageDiv").appendChild(cardBase);
     cardBase.addEventListener("click", function () {
       if (isCardEdit) {
-        openCardMaker();
+        document.getElementById("cardMaker").style.display = "block";
         let card;
-        for (let i in cards) {
-          if (cards[i].name === this.getAttribute("namel")) {
-            card = cards[i];
+        for (let i in allCards) {
+          if (allCards[i].name === this.getAttribute("namel")) {
+            card = allCards[i];
             break;
           }
         }
@@ -576,6 +582,20 @@ function reloadCards() {
         document.getElementById("cardImageInput").required = false;
         keepImageCard = true;
         isCardEdit = false;
+        document.getElementById("isCardEditDiv").innerText = "normal";
+
+        makeCards();
+      } else if (isCardDelete) {
+        if (confirm("Are you sure you want to delete this") == true) {
+          let card;
+          for (let i in uCards) {
+            if (uCards[i].name === this.getAttribute("namel")) {
+              card = uCards[i];
+              break;
+            }
+          }
+          socket.emit("cardDelete", card.name);
+        }
       } else {
         if (this.classList.contains("bigCard")) {
           this.classList.remove("bigCard");
@@ -609,79 +629,50 @@ socket.on("askReset", function () {
 
 socket.on("sendAllCardData", function (value) {
   allCards = value;
-  if (isCardEdit) {
-    setTimeout(function () {
-      let cardsItems = document.querySelectorAll(".cards");
-      for (let i of cardsItems) {
-        i.remove();
-      }
-      for (let i in allCards) {
-        let cardBase = document.createElement("div");
-        cardBase.setAttribute("namel", allCards[i].name);
-        cardBase.className = "cards";
-        let cardImage = document.createElement("img");
-        cardImage.src =
-          "cardImages/" + allCards[i].name + "." + allCards[i].type;
-
-        cardImage.width = cards[i].sizeX;
-        cardBase.style.width = cards[i].sizeX + "px";
-        cardImage.height = cards[i].sizeY;
-        cardBase.style.height = cards[i].sizeY + "px";
-        cardBase.appendChild(cardImage);
-        document.getElementById("cardsPageDiv").appendChild(cardBase);
-        cardBase.addEventListener("click", function () {
-          if (isCardEdit) {
-            document.getElementById("cardMaker").style.display = "block";
-            let card;
-            for (let i in allCards) {
-              if (allCards[i].name === this.getAttribute("namel")) {
-                card = allCards[i];
-                break;
-              }
-            }
-            document.getElementById("cardNameInput").value = card.name;
-            document.getElementById("sizeX").value = card.sizeX;
-            document.getElementById("sizeY").value = card.sizeY;
-            document.getElementById("start").checked = card.start;
-            document.getElementById("cardImageLabel").innerText =
-              card.name + "." + card.type;
-            document.getElementById("cardImageInput").required = false;
-            keepImageCard = true;
-            isCardEdit = false;
-
-            reloadCards();
-          } else {
-          }
-        });
-      }
-    }, 1000);
-  }
+  setTimeout(() => {
+    makeCards();
+  }, 1000);
 });
+
+function showAllLocks() {
+  makeLocks();
+}
 
 socket.on("sendLockData", function (value) {
   locks = value;
+  makeLocks();
+});
+
+socket.on("sendUserData", function (value) {
+  users = value;
+  makeUsers();
+});
+
+function makeLocks() {
   let locksItems = document.querySelectorAll(".locks");
   for (let i of locksItems) {
     i.remove();
   }
-  for (let i in locks) {
+  let uLocks = locks;
+  if (isLockEdit || isLockDelete) uLocks = allLocks;
+  for (let i in uLocks) {
     let lockBase = document.createElement("div");
     lockBase.className = "locks";
-    lockBase.innerHTML += locks[i].displayName + "<br>";
+    lockBase.innerHTML += uLocks[i].displayName + "<br>";
     let lockImage = document.createElement("img");
     lockImage.src = "lock.png";
     lockImage.width = 125;
     lockImage.height = 150;
     lockBase.appendChild(lockImage);
     document.getElementById("locksPageDiv").appendChild(lockBase);
-    lockBase.setAttribute("namel", locks[i].name);
+    lockBase.setAttribute("namel", uLocks[i].name);
     lockBase.addEventListener("click", function () {
       if (isLockEdit) {
         openLockMaker();
         let lock;
-        for (let i in locks) {
-          if (locks[i].name === this.getAttribute("namel")) {
-            lock = locks[i];
+        for (let i in uLocks) {
+          if (uLocks[i].name === this.getAttribute("namel")) {
+            lock = uLocks[i];
             break;
           }
         }
@@ -699,7 +690,19 @@ socket.on("sendLockData", function (value) {
         }
         document.getElementById("locksResultsRemove").value = lock.toRemove;
         keepImageLock = true;
-        isLockEdit = false;
+        document.getElementById("isLockEditDiv").innerText = "normal";
+      } else if (isLockDelete) {
+        if (confirm("Are you sure you want to delete this") == true) {
+          let lock;
+          for (let i in uLocks) {
+            if (uLocks[i].name === this.getAttribute("namel")) {
+              lock = uLocks[i];
+              break;
+            }
+          }
+          socket.emit("lockDelete", lock.name);
+        } else {
+        }
       } else {
         document.getElementById("lockOpener").style.display = "block";
         document.getElementById("lockOpenerName").innerText =
@@ -711,62 +714,93 @@ socket.on("sendLockData", function (value) {
       }
     });
   }
+}
+
+function makeProgs() {
+  let progsItems = document.querySelectorAll(".progs");
+  for (let i of progsItems) {
+    i.remove();
+  }
+  let uProgs = progs;
+  for (let i in uProgs) {
+    let progBase = document.createElement("div");
+    progBase.className = "progs";
+    progBase.innerHTML +=
+      uProgs[i].name +
+      ": " +
+      uProgs[i].progress +
+      "/" +
+      uProgs[i].totalLocks +
+      "<br>";
+    console.log(progBase);
+    document.getElementById("othersPageDiv").appendChild(progBase);
+  }
+}
+
+socket.on("sendUserProg", function (value) {
+  progs = value;
+  makeProgs();
 });
+
+socket.on("requestAllData", function () {
+  socket.emit("askForAllData");
+});
+
+function makeUsers() {
+  let usersItems = document.querySelectorAll(".users");
+  for (let i of usersItems) {
+    i.remove();
+  }
+  let uUsers = users;
+  for (let i in uUsers) {
+    let usersBase = document.createElement("div");
+    usersBase.className = "users";
+    if (uUsers[i].done) {
+      usersBase.style.color = "green";
+    }
+    if (uUsers[i].isAdmin) {
+      usersBase.style.color = "blue";
+    }
+    if (uUsers[i].isAdmin && uUsers[i].done) {
+      usersBase.style.color = "black";
+    }
+    usersBase.innerHTML += uUsers[i].name + "<br>";
+    let usersImage = document.createElement("img");
+    usersImage.src = "users.png";
+    usersImage.width = 125;
+    usersImage.height = 150;
+    usersBase.appendChild(usersImage);
+    document.getElementById("adminPageDiv").appendChild(usersBase);
+    usersBase.setAttribute("namel", uUsers[i].name);
+
+    usersBase.addEventListener("click", function () {
+      document.getElementById("userMaker").style.display = "block";
+      document.getElementById("userMakerName").innerText =
+        this.innerText.trim();
+
+      document
+        .getElementById("submitLockOpener")
+        .setAttribute("namel", this.getAttribute("namel"));
+    });
+  }
+}
 
 socket.on("sendAllLockData", function (value) {
   allLocks = value;
+  setTimeout(() => {
+    makeLocks();
+  }, 1000);
 });
 
 //edit cards
 
 function editCards() {
   isCardEdit = !isCardEdit;
-  if (isCardEdit) {
-    let cardsItems = document.querySelectorAll(".cards");
-    for (let i of cardsItems) {
-      i.remove();
-    }
-    for (let i in allCards) {
-      let cardBase = document.createElement("div");
-      cardBase.setAttribute("namel", allCards[i].name);
-      cardBase.className = "cards";
-      let cardImage = document.createElement("img");
-      cardImage.src = "cardImages/" + allCards[i].name + "." + allCards[i].type;
+  document.getElementById("isCardEditDiv").innerText = isCardEdit
+    ? "edit"
+    : "normal";
 
-      cardImage.width = allCards[i].sizeX;
-      cardBase.style.width = allCards[i].sizeX + "px";
-      cardImage.height = allCards[i].sizeY;
-      cardBase.style.height = allCards[i].sizeY + "px";
-      cardBase.appendChild(cardImage);
-      document.getElementById("cardsPageDiv").appendChild(cardBase);
-      cardBase.addEventListener("click", function () {
-        if (isCardEdit) {
-          document.getElementById("cardMaker").style.display = "block";
-          let card;
-          for (let i in allCards) {
-            if (allCards[i].name === this.getAttribute("namel")) {
-              card = allCards[i];
-              break;
-            }
-          }
-          document.getElementById("cardNameInput").value = card.name;
-          document.getElementById("sizeX").value = card.sizeX;
-          document.getElementById("sizeY").value = card.sizeY;
-          document.getElementById("start").checked = card.start;
-          document.getElementById("cardImageLabel").innerText =
-            card.name + "." + card.type;
-          document.getElementById("cardImageInput").required = false;
-          keepImageCard = true;
-          isCardEdit = false;
-
-          reloadCards();
-        } else {
-        }
-      });
-    }
-  } else {
-    reloadCards();
-  }
+  makeCards();
 }
 
 //lock

@@ -31,6 +31,12 @@
         <li>
           <p class="" onclick="navBarClick(this,'locks')">Locks</p>
         </li>
+        <li>
+          <p class="" onclick="navBarClick(this,'others')">Others</p>
+        </li>
+        <li class="admin">
+          <p onclick="navBarClick(this,'admin')">Admin</p>
+        </li>
         <li style="float: right; border-left: 1px solid #bbb">
           <p class="" onclick="navBarClick(this,'about')">About</p>
         </li>
@@ -52,7 +58,6 @@
           <div id="lockMakerOuter">
             <form
               id="qrcodeMaker"
-              onsubmit="return qrcode()"
               action="fileupload"
               method="post"
               enctype="multipart/form-data"
@@ -83,7 +88,12 @@
                 id="qrcodeLock"
                 name="qrcodeLock"
               /><br />
-              <button type="submit" class="clickyButton" id="submitQrcodeMaker">
+              <button
+                type="button"
+                onclick="return qrcode()"
+                class="clickyButton"
+                id="submitQrcodeMaker"
+              >
                 Submit
               </button>
               <button
@@ -99,6 +109,11 @@
           </div>
         </div>
         <div class="page" id="cardsPageDiv">
+          <div class="admin">
+            Mode:
+            <div id="isCardEditDiv" style="display: inline-block">Normal</div>
+          </div>
+          <br />
           <p class="admin">Create Card:</p>
           <button
             class="clickyButton admin"
@@ -110,10 +125,20 @@
           <p class="admin">Edit Card:</p>
           <button
             class="clickyButton admin"
-            onclick="editCards()"
+            onclick="editCards(); isCardDelete = false;"
             id="editCard"
           >
             Edit</button
+          ><br />
+          <p class="admin">Delete Lock:</p>
+          <button
+            class="clickyButton admin"
+            onclick="isCardDelete = !isCardDelete; isCardEdit = false; 
+            makeCards();
+            document.getElementById('isCardEditDiv').innerText = isCardDelete ? ' delete' :' normal';"
+            id="editLock"
+          >
+            Delete</button
           ><br />
           <div style="border: 0.02rem solid"></div>
           Cards<br />
@@ -163,7 +188,8 @@
               <button
                 type="button"
                 onclick="document.getElementById('cardImageInput').required = true;
-              isCardEdit = false; keepImageCard = false; document.getElementById('cardMaker').style.display='none';"
+              isCardEdit = false; 
+          document.getElementById('isCardEditDiv').innerText = 'normal'; keepImageCard = false; document.getElementById('cardMaker').style.display='none';"
                 id="quitCardMaker"
               >
                 X
@@ -177,6 +203,11 @@
           <br />
         </div>
         <div class="page" id="locksPageDiv">
+          <div class="admin">
+            Mode:
+            <div id="isLockEditDiv" style="display: inline-block">Normal</div>
+          </div>
+          <br />
           <p class="admin">Create Lock:</p>
           <button
             class="clickyButton admin"
@@ -188,10 +219,20 @@
           <p class="admin">Edit Lock:</p>
           <button
             class="clickyButton admin"
-            onclick="isLockEdit = !isLockEdit"
+            onclick="isLockEdit = !isLockEdit; isLockDelete = false; showAllLocks()
+            document.getElementById('isLockEditDiv').innerText = isLockEdit ?' edit' :' normal';"
             id="editLock"
           >
             Edit</button
+          ><br />
+          <p class="admin">Delete Lock:</p>
+          <button
+            class="clickyButton admin"
+            onclick="isLockDelete = !isLockDelete; isLockEdit = false; showAllLocks();
+            document.getElementById('isLockEditDiv').innerText = isLockDelete ? ' delete' :' normal';"
+            id="editLock"
+          >
+            Delete</button
           ><br />
           <div style="border: 0.02rem solid"></div>
           Locks<br />
@@ -294,7 +335,8 @@
               <button
                 type="button"
                 onclick="
-              isLockEdit = false; keepImageLock = false; document.getElementById('lockMaker').style.display='none';"
+              isLockEdit = false; keepImageLock = false;  
+          document.getElementById('isLockEditDiv').innerText = 'normal'; document.getElementById('lockMaker').style.display='none';"
                 id="quitLockMaker"
               >
                 X
@@ -328,8 +370,70 @@
           be academic problems above your level, so consult an Arrow. Some may
           be in the deepest depths of the internet, or the smallest kook on
           campus. The solutions to puzzles reveal unlock codes for locks.
-          <br /><br />End Goal: To unlock every certain lock and receive a cash
-          prize.
+          <br /><br />End Goal: To unlock every lock and the receive a cash
+          prize. <br /><br />
+          If you have any other questions or need help logging back in to your
+          account contact us at idorandomtechstuff@gmail.com
+        </div>
+        <div class="page" id="othersPageDiv">
+          Other Peoples Progress
+          <div style="border: 0.02rem solid"></div>
+        </div>
+        <div class="page" id="adminPageDiv">
+          Admin
+          <div style="border: 0.02rem solid"></div>
+
+          <div id="userMakerOuter">
+            <form
+              id="userMaker"
+              onsubmit="return false"
+              action="fileupload"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <p style="margin: 0; text-align: center">User Editor</p>
+              <p style="margin: 0; text-align: center" id="userMakerName"></p>
+              <button
+                type="button"
+                class="clickyButton"
+                onclick="document.getElementById('userMaker').style.display='none'; socket.emit('makeAdmin', document.getElementById('userMakerName').innerText.trim())"
+              >
+                Make Admin</button
+              ><br />
+
+              <button
+                type="button"
+                class="clickyButton"
+                onclick="document.getElementById('userMaker').style.display='none'; socket.emit('deleteUser', document.getElementById('userMakerName').innerText.trim())"
+              >
+                Delete</button
+              ><br />
+              <button
+                type="button"
+                class="clickyButton"
+                onclick="document.getElementById('userMaker').style.display='none'; socket.emit('resetUser', document.getElementById('userMakerName').innerText.trim())"
+              >
+                Reset</button
+              ><br />
+              <label for="passwordUser">Password:</label>
+              <input id="passwordUser" type="text" /><br />
+              <button
+                type="button"
+                class="clickyButton"
+                onclick="document.getElementById('userMaker').style.display='none'; socket.emit('changePassword', document.getElementById('userMakerName').innerText.trim(), document.getElementById('passwordUser').value)"
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                onclick="  
+          document.getElementById('userMaker').style.display='none';"
+                id="quitUserMaker"
+              >
+                X
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -341,7 +445,8 @@
         <input required type="email" id="email" /><br />
         <label for="password">Password</label><br />
         <input required type="password" id="password" /><br /><br />
-        <button class="clickyButton" id="loginButton">Login</button>
+        <button class="clickyButton" id="loginButton">Login</button><br />
+        Contact us at: idorandomtechstuff@gmail.com
       </form>
 
       <div id="emojiKeyboard" class="innerHoverElement">Emojies</div>

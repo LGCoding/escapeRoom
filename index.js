@@ -24,6 +24,24 @@ let wasChangeLocks = false;
 //     next();
 // });
 
+const nodemailer = require("nodemailer");
+
+let transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    type: "OAuth2",
+    user: "idorandomtechstuff@gmail.com",
+    pass: "TechStuff.1234",
+    clientId:
+      "97976407358-8so1bb1nt7c8utfsu76b4n7311g63sk8.apps.googleusercontent.com",
+    clientSecret: "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",
+    refreshToken:
+      "1//04QTJS64GY0qWCgYIARAAGAQSNwF-L9IrH-DknFtVMxiC6p9oUYXidoOQv66zGKVtZzMqv_7HuU4VASXd1-b233LvsofXDFdxBAc",
+  },
+});
+
+// setup email data with unicode symbols
+
 app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
@@ -65,7 +83,22 @@ app.post("/submit-form/cards.php", (req, res) => {
     };
     wasChangeCards = true;
     io.emit("sendAllCardData", cards);
-    io.emit("askReset");
+    for (let j in users) {
+      console.log(j);
+      users[j].locks = Object.values(locks);
+      let startCards = [];
+      for (let i in cards) {
+        if (cards[i].start) {
+          startCards.push(cards[i]);
+        }
+      }
+
+      users[j].cards = startCards;
+      users[j].videos = [];
+      users[j].done = false;
+    }
+    wasChangeUsers = true;
+    io.emit("requestAllData");
   });
 });
 
@@ -120,7 +153,22 @@ app.post("/submit-form/locks.php", (req, res) => {
       type: temp,
     };
     wasChangeLocks = true;
-    io.emit("askReset");
+    for (let j in users) {
+      console.log(j);
+      users[j].locks = Object.values(locks);
+      let startCards = [];
+      for (let i in cards) {
+        if (cards[i].start) {
+          startCards.push(cards[i]);
+        }
+      }
+
+      users[j].cards = startCards;
+      users[j].videos = [];
+      users[j].done = false;
+    }
+    wasChangeUsers = true;
+    io.emit("requestAllData");
   });
 });
 
@@ -132,10 +180,14 @@ io.on("connection", (socket) => {
       if (users[value.email].password === value.password) {
         name = value.email;
         socket.emit("goodLog", false, users[value.email].isAdmin);
-        if (users[value.email].isAdmin) sendAllCardData();
+        if (users[value.email].isAdmin) {
+          sendAllCardData();
+          sendUserData();
+        }
         sendCardData();
         sendLockData();
         sendVideoData();
+        sendUserProg();
       } else {
         socket.emit("badLog");
       }
@@ -152,7 +204,42 @@ io.on("connection", (socket) => {
       sendCardData();
       sendLockData();
       sendVideoData();
+      sendUserProg();
     }
+  });
+
+  socket.on("makeAdmin", (value) => {
+    console.log("in");
+    users[value].isAdmin = !users[value].isAdmin;
+    wasChangeUsers = true;
+    requestAllData();
+  });
+
+  socket.on("deleteUser", (value) => {
+    delete users[value];
+    wasChangeUsers = true;
+    requestAllData();
+  });
+
+  socket.on("resetUser", (value) => {
+    users[value].locks = Object.values(locks);
+    let startCards = [];
+    for (let i in cards) {
+      if (cards[i].start) {
+        startCards.push(cards[i]);
+      }
+    }
+
+    users[value].cards = startCards;
+    users[value].videos = [];
+    users[value].done = false;
+    wasChangeUsers = true;
+    requestAllData();
+  });
+
+  socket.on("changePassword", (value, value2) => {
+    users[value].password = value2;
+    wasChangeUsers = true;
   });
 
   socket.on("unlock", function (lname, combo) {
@@ -173,12 +260,14 @@ io.on("connection", (socket) => {
         locks[lname].displayName,
       ]);
       for (let i in locks[lname].lockResults) {
-        users[name].cards.push(cards[locks[lname].lockResults[i]]);
+        if (locks[lname])
+          users[name].cards.push(cards[locks[lname].lockResults[i]]);
       }
       let toRemove = locks[lname].toRemove.split(", ");
       console.log(toRemove);
       while (toRemove.length) {
-        for (let i in users[name].cards) {
+        console.log(users[name].cards);
+        for (let i = 0; i < users[name].cards.length; i++) {
           if (users[name].cards[i].name === toRemove[0]) {
             toRemove.shift();
             users[name].cards.splice(i, 1);
@@ -187,10 +276,29 @@ io.on("connection", (socket) => {
         toRemove.shift();
       }
       console.log("in");
+
+      if (users[name].videos.length === Object.keys(locks).length) {
+        users[name].done = true;
+        let mailOptions = {
+          from: "IDORANDOMTECHSTUFF@GMAIL.COM", // sender address
+          to: "liamvgav@gmail.com", // list of receivers
+          subject: "Someone finished", // Subject line
+          text: name + "finished", // plain text body
+        };
+
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return console.log(error);
+          }
+          console.log("Message sent: %s", info.messageId);
+        });
+      }
       wasChangeUsers = true;
       sendCardData();
       sendLockData();
       sendVideoData();
+      sendUserProg();
     } else {
       socket.emit("failedUnlocked", lname);
     }
@@ -205,6 +313,79 @@ io.on("connection", (socket) => {
     sendCardData();
     sendLockData();
     sendVideoData();
+    sendAllCardData();
+  });
+
+  socket.on("lockDelete", function (value) {
+    let path = "public/lockImages/" + value + "." + locks[value].type;
+    fs.unlink(path, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
+    for (let i in users) {
+      for (let j in users[i].locks) {
+        if (users[i].locks[j].name === value) {
+          users[i].locks.splice(j, 1);
+        }
+      }
+    }
+    delete locks[value];
+    for (let j in users) {
+      console.log(j);
+      users[j].locks = Object.values(locks);
+      let startCards = [];
+      for (let i in cards) {
+        if (cards[i].start) {
+          startCards.push(cards[i]);
+        }
+      }
+
+      users[j].cards = startCards;
+      users[j].videos = [];
+      users[j].done = false;
+    }
+    wasChangeUsers = true;
+    wasChangeLocks = true;
+    wasChangeUsers = true;
+    requestAllData();
+  });
+
+  socket.on("cardDelete", function (value) {
+    let path = "public/cardImages/" + value + "." + cards[value].type;
+    fs.unlink(path, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
+    for (let i in users) {
+      for (let j in users[i].cards) {
+        if (users[i].cards[j].name === value) {
+          users[i].cards.splice(j, 1);
+        }
+      }
+    }
+    delete cards[value];
+    for (let j in users) {
+      console.log(j);
+      users[j].locks = Object.values(locks);
+      let startCards = [];
+      for (let i in cards) {
+        if (cards[i].start) {
+          startCards.push(cards[i]);
+        }
+      }
+
+      users[j].cards = startCards;
+      users[j].videos = [];
+      users[j].done = false;
+    }
+    wasChangeUsers = true;
+    wasChangeCards = true;
+    wasChangeUsers = true;
+    requestAllData();
   });
 
   socket.on("qrcode", function (value) {
@@ -255,22 +436,37 @@ io.on("connection", (socket) => {
     }
   });
 
-  //-------------------------CardHandleing------------------------------
-  function sendCardData() {
+  socket.on("askForAllData", function (value) {
     if (name === "") {
       socket.emit("reload");
       return;
     }
-    socket.emit("sendCardData", users[name].cards);
+    if (users[name].isAdmin) {
+      sendAllCardData();
+      sendUserData();
+    }
+    sendCardData();
+    sendLockData();
+    sendVideoData();
+    sendUserProg();
+  });
+
+  //-------------------------CardHandleing------------------------------
+  function sendCardData(person = name) {
+    if (person === "") {
+      socket.emit("reload");
+      return;
+    }
+    socket.emit("sendCardData", users[person].cards);
   }
-  function sendVideoData() {
+  function sendVideoData(person = name) {
     if (name === "") {
       socket.emit("reload");
       return;
     }
     socket.emit("sendVideoData", users[name].videos);
   }
-  function sendAllCardData() {
+  function sendAllCardData(person = name) {
     if (name === "") {
       socket.emit("reload");
       return;
@@ -278,13 +474,41 @@ io.on("connection", (socket) => {
     socket.emit("sendAllCardData", Object.values(cards));
     socket.emit("sendAllLockData", Object.values(locks));
   }
-  //-------------------------LockHandleing------------------------------
-  function sendLockData() {
+  function sendUserData(person = name) {
     if (name === "") {
       socket.emit("reload");
       return;
     }
-    socket.emit("sendLockData", users[name].locks);
+    let nUsers = [];
+    for (let i in users) {
+      users[i].name = i;
+      nUsers.push(users[i]);
+    }
+    socket.emit("sendUserData", nUsers);
+  }
+  function sendUserProg(person = name) {
+    if (name === "") {
+      socket.emit("reload");
+      return;
+    }
+    let nUsers = [];
+    for (let i in users) {
+      nUsers.push({
+        name: i.split("@")[0],
+        progress: users[i].videos.length,
+        totalLocks: Object.keys(locks).length,
+      });
+    }
+    console.log("inProg");
+    io.emit("sendUserProg", nUsers);
+  }
+  //-------------------------LockHandleing------------------------------
+  function sendLockData(person = name) {
+    if (name === "") {
+      socket.emit("reload");
+      return;
+    }
+    socket.emit("sendLockData", users[person].locks);
   }
   //-------------------------BothHandleing------------------------------
   function reset() {
@@ -303,7 +527,13 @@ io.on("connection", (socket) => {
 
     users[name].cards = startCards;
     users[name].videos = [];
+    users[name].done = false;
     wasChangeUsers = true;
+  }
+
+  function requestAllData() {
+    console.log("inRequest");
+    io.emit("requestAllData");
   }
 });
 
@@ -333,10 +563,10 @@ setInterval(function () {
 
       console.log("Done writing"); // Success
     });
+    console.log("Done writing");
     wasChangeLocks = false;
   }
 }, 10000);
-console.log(process.env.PORT);
 server.listen(process.env.PORT || 3000, () => {
-  console.log("listening on *:" + process.env.PORT || 3000);
+  console.log("listening on *:" + (process.env.PORT || 3000));
 });
