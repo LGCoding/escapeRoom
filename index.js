@@ -50,12 +50,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  console.log(req.query);
-  if (tempUsers[req.query.email].secureIdLol === req.secureIdLol) {
+  console.log(req.query, tempUsers[req.query.email].secureIdLol);
+  if (tempUsers[req.query.email].secureIdLol === parseInt(req.secureIdLol)) {
     users[req.email] = tempUsers[req.email];
     delete tempUsers[req.email];
+    wasChangeUsers = true;
   }
-  wasChangeUsers = true;
   res.redirect("/");
 });
 
@@ -251,7 +251,7 @@ io.on("connection", (socket) => {
       sendEmail(
         name,
         "Please Register Your Email",
-        "Use this link to register your email" +
+        "Use this link to register your email " +
           `idorandomtechstuff.com/register?email=${name}&secureidlol=${superDuperId}`
       );
       setTimeout(() => {
