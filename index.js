@@ -45,7 +45,9 @@ let transporter = nodemailer.createTransport({
 
 app.use(express.static(__dirname + "/public"));
 
-app.get("/register", (req, res) => {
+const router = express.Router();
+
+router.get("/register", (req, res) => {
   console.log(req.query, tempUsers[req.query.email].secureIdLol);
   if (
     req.query.email &&
@@ -64,7 +66,7 @@ app.get("/register", (req, res) => {
   // }, 3000);
 });
 
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 
