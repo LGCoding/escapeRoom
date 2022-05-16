@@ -58,10 +58,6 @@ app.get("/register", (req, res) => {
     wasChangeUsers = true;
   }
   res.send("registered");
-
-  setTimeout(() => {
-    res.redirect("/");
-  }, 3000);
 });
 
 app.get("/", (req, res) => {
