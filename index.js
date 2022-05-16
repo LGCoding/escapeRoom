@@ -59,9 +59,9 @@ app.get("/register", (req, res) => {
   }
   res.send("registered");
 
-  setTimeout(() => {
-    res.redirect("/");
-  }, 3000);
+  // setTimeout(() => {
+  //   res.redirect("/");
+  // }, 3000);
 });
 
 app.get("/", (req, res) => {
