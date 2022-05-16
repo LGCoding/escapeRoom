@@ -12,6 +12,7 @@ const cardsData = require("./cards");
 const locksData = require("./locks");
 
 let users = userData;
+let tempUsers = {};
 let cards = cardsData;
 let locks = locksData;
 
@@ -46,6 +47,16 @@ app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
+});
+
+app.get("/register", (req, res) => {
+  console.log(req.query);
+  if (tempUsers[req.query.email].secureIdLol === req.secureIdLol) {
+    users[req.email] = tempUsers[req.email];
+    delete tempUsers[req.email];
+  }
+  wasChangeUsers = true;
+  res.redirect("/");
 });
 
 app.post("/submit-form/cards.php", (req, res) => {
@@ -172,6 +183,23 @@ app.post("/submit-form/locks.php", (req, res) => {
   });
 });
 
+function sendEmail(to, subject, text) {
+  let mailOptions = {
+    from: "IDORANDOMTECHSTUFF@GMAIL.COM", // sender address
+    to: to, // list of receivers
+    subject: subject, // Subject line
+    text: text, // plain text body
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log("Message sent: %s", info.messageId);
+  });
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   let name = "";
@@ -193,18 +221,42 @@ io.on("connection", (socket) => {
       }
     } else {
       wasChangeCards = true;
-      users[value.email] = {
+      let superDuperId =
+        Math.floor(Math.random() * 1000) *
+        Math.floor(Math.random() * 1000) *
+        Math.floor(Math.random() * 1000);
+      tempUsers[value.email] = {
         password: value.password,
         isAdmin: false,
         videos: [],
+        secureIdLol: superDuperId,
       };
-      socket.emit("goodLog", true);
+      socket.emit(
+        "makepopup",
+        "Check your email to confirm email you have 5 min"
+      );
       name = value.email;
-      reset();
-      sendCardData();
-      sendLockData();
-      sendVideoData();
-      sendUserProg();
+
+      tempUsers[name].locks = Object.values(locks);
+      let startCards = [];
+      for (let i in cards) {
+        if (cards[i].start) {
+          startCards.push(cards[i]);
+        }
+      }
+
+      tempUsers[name].cards = startCards;
+      tempUsers[name].videos = [];
+      tempUsers[name].done = false;
+      sendEmail(
+        name,
+        "Please Register Your Email",
+        "Use this link to register your email" +
+          `idorandomtechstuff.com/register?email=${name}&secureidlol=${superDuperId}`
+      );
+      setTimeout(() => {
+        delete tempUsers[name];
+      }, 300000);
     }
   });
 
