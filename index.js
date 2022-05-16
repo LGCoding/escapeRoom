@@ -51,15 +51,14 @@ app.get("/register", (req, res) => {
     !!req.query.email,
     !!req.query.secureIdLol,
     !!tempUsers[req.query.email],
-    tempUsers[req.query.email].secureIdLol == parseInt(req.secureIdLol),
-    parseInt(req.secureIdLol),
+    tempUsers[req.query.email].secureIdLol == req.secureIdLol,
     tempUsers[req.query.email].secureIdLol
   );
   if (
     req.query.email &&
     req.query.secureIdLol &&
     tempUsers[req.query.email] &&
-    tempUsers[req.query.email].secureIdLol == parseInt(req.secureIdLol)
+    tempUsers[req.query.email].secureIdLol == req.secureIdLol
   ) {
     users[req.email] = tempUsers[req.email];
     delete tempUsers[req.email];
