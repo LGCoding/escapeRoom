@@ -52,7 +52,8 @@ app.get("/register", (req, res) => {
     !!req.query.secureIdLol,
     !!tempUsers[req.query.email],
     tempUsers[req.query.email].secureIdLol == req.secureIdLol,
-    tempUsers[req.query.email].secureIdLol
+    tempUsers[req.query.email].secureIdLol,
+    req.secureIdLol
   );
   if (
     req.query.email &&
