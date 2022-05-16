@@ -337,7 +337,7 @@ io.on("connection", (socket) => {
       }
       console.log("in");
 
-      if (users[name].videos.length === Object.keys(locks).length) {
+      if (users[name].videos.length - 1 === Object.keys(locks).length) {
         users[name].done = true;
         let mailOptions = {
           from: "IDORANDOMTECHSTUFF@GMAIL.COM", // sender address
