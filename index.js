@@ -46,15 +46,6 @@ let transporter = nodemailer.createTransport({
 app.use(express.static(__dirname + "/public"));
 
 app.get("/register", (req, res) => {
-  console.log(
-    req.query,
-    !!req.query.email,
-    !!req.query.secureIdLol,
-    !!tempUsers[req.query.email],
-    tempUsers[req.query.email].secureIdLol == req.query.secureIdLol,
-    tempUsers[req.query.email].secureIdLol,
-    req.secureIdLol
-  );
   if (
     req.query.email &&
     req.query.secureIdLol &&
