@@ -52,11 +52,13 @@ app.get("/register", (req, res) => {
     tempUsers[req.query.email] &&
     tempUsers[req.query.email].secureIdLol == req.query.secureIdLol
   ) {
+    clearTimeout(tempUsers[req.query.email].timeout);
     users[req.query.email] = tempUsers[req.query.email];
     delete tempUsers[req.query.email];
     wasChangeUsers = true;
+    res.send("registered");
   }
-  res.send("registered");
+  res.send("Not a valid register string");
 });
 
 app.get("/", (req, res) => {
@@ -235,6 +237,9 @@ io.on("connection", (socket) => {
         isAdmin: false,
         videos: [],
         secureIdLol: superDuperId,
+        timeout: setTimeout(() => {
+          delete tempUsers[name];
+        }, 300000),
       };
       socket.emit(
         "makepopup",
@@ -259,9 +264,6 @@ io.on("connection", (socket) => {
         "Use this link to register your email " +
           `https://escape-room-brlgb.ondigitalocean.app/register?email=${name}&secureIdLol=${superDuperId}`
       );
-      setTimeout(() => {
-        delete tempUsers[name];
-      }, 300000);
     }
   });
 
