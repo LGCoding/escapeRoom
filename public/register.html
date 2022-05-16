@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Escape The School</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <script
+      src="easy.qrcode.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script src="html5-qrcode.min.js"></script>
+    <script src="print.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div id="outMostDiv">
+      <div id="pages"></div>
+    </div>
+
+    <div id="hoverDiv" class="noClickThrough">
+      <form id="loginDiv" class="innerHoverElement">
+        You are Register Click the Button to Go Back<br />
+        <button
+          class="clickyButton"
+          onclick="location.assign(location.hostname)"
+        >
+          Return</button
+        ><br />
+        Contact us at: idorandomtechstuff@gmail.com
+      </form>
+
+      <div id="emojiKeyboard" class="innerHoverElement">Emojies</div>
+      <div id="cardInputSelector" class="innerHoverElement">
+        Cards<br />
+        <br id="cardInputSelectorBr" /><button
+          type="submit"
+          class="clickyButton"
+          id="cardInputSelectorButton"
+        >
+          Submit
+        </button>
+      </div>
+      <div id="lockInputSelector" class="innerHoverElement">
+        Locks<br />
+        <br id="lockInputSelectorBr" /><button
+          type="submit"
+          class="clickyButton"
+          id="lockInputSelectorButton"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

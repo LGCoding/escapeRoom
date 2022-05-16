@@ -56,9 +56,10 @@ app.get("/register", (req, res) => {
     users[req.query.email] = tempUsers[req.query.email];
     delete tempUsers[req.query.email];
     wasChangeUsers = true;
-    res.send("registered");
+    res.sendFile(__dirname + "/public/register.html");
+    return;
   }
-  res.send("Not a valid register string");
+  res.sendFile(__dirname + "/public/failedRegister.html");
 });
 
 app.get("/", (req, res) => {
