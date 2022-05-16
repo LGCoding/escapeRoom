@@ -45,10 +45,6 @@ let transporter = nodemailer.createTransport({
 
 app.use(express.static(__dirname + "/public"));
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
-
 app.get("/register", (req, res) => {
   console.log(req.query, tempUsers[req.query.email].secureIdLol);
   if (
@@ -66,6 +62,10 @@ app.get("/register", (req, res) => {
   setTimeout(() => {
     res.redirect("/");
   }, 3000);
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 app.post("/submit-form/cards.php", (req, res) => {
