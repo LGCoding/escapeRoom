@@ -45,13 +45,7 @@ let transporter = nodemailer.createTransport({
 
 app.use(express.static(__dirname + "/public"));
 
-const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
-
-router.get("/register", (req, res) => {
+app.get("/register", (req, res) => {
   console.log(req.query, tempUsers[req.query.email].secureIdLol);
   if (
     req.query.email &&
@@ -65,9 +59,13 @@ router.get("/register", (req, res) => {
   }
   res.send("registered");
 
-  // setTimeout(() => {
-  //   res.redirect("/");
-  // }, 3000);
+  setTimeout(() => {
+    res.redirect("/");
+  }, 3000);
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 app.post("/submit-form/cards.php", (req, res) => {
@@ -263,7 +261,7 @@ io.on("connection", (socket) => {
         name,
         "Please Register Your Email",
         "Use this link to register your email " +
-          `idorandomtechstuff.com/register?email=${name}&secureidlol=${superDuperId}`
+          `https://escape-room-brlgb.ondigitalocean.app/register?email=${name}&secureidlol=${superDuperId}`
       );
       setTimeout(() => {
         delete tempUsers[name];
