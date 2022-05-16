@@ -61,8 +61,8 @@ app.get("/register", (req, res) => {
     tempUsers[req.query.email] &&
     tempUsers[req.query.email].secureIdLol == req.query.secureIdLol
   ) {
-    users[req.email] = tempUsers[req.email];
-    delete tempUsers[req.email];
+    users[req.query.email] = tempUsers[req.query.email];
+    delete tempUsers[req.query.email];
     wasChangeUsers = true;
   }
   res.send("registered");
