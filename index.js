@@ -51,7 +51,9 @@ app.get("/register", (req, res) => {
     !!req.query.email,
     !!req.query.secureIdLol,
     !!tempUsers[req.query.email],
-    tempUsers[req.query.email].secureIdLol == parseInt(req.secureIdLol)
+    tempUsers[req.query.email].secureIdLol == parseInt(req.secureIdLol),
+    parseInt(req.secureIdLol),
+    tempUsers[req.query.email].secureIdLol
   );
   if (
     req.query.email &&
