@@ -47,6 +47,10 @@ app.use(express.static(__dirname + "/public"));
 
 const router = express.Router();
 
+router.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
+
 router.get("/register", (req, res) => {
   console.log(req.query, tempUsers[req.query.email].secureIdLol);
   if (
@@ -64,10 +68,6 @@ router.get("/register", (req, res) => {
   // setTimeout(() => {
   //   res.redirect("/");
   // }, 3000);
-});
-
-router.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
 });
 
 app.post("/submit-form/cards.php", (req, res) => {
