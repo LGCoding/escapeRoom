@@ -554,7 +554,7 @@ io.on("connection", (socket) => {
     for (let i in users) {
       nUsers.push({
         name: i.split("@")[0],
-        progress: users[i].videos.length,
+        progress: users[i].videos.length - 1,
         totalLocks: Object.keys(locks).length,
       });
     }
