@@ -234,9 +234,10 @@ io.on("connection", (socket) => {
     } else {
       wasChangeCards = true;
       let superDuperId =
-        Math.floor(Math.random() * 1000) *
-        Math.floor(Math.random() * 1000) *
-        Math.floor(Math.random() * 1000);
+        Math.ceil(Math.random() * 1000) *
+          Math.ceil(Math.random() * 1000) *
+          Math.ceil(Math.random() * 1000) +
+        "";
       tempUsers[value.email] = {
         password: value.password,
         isAdmin: false,
