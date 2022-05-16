@@ -257,7 +257,7 @@ io.on("connection", (socket) => {
         name,
         "Please Register Your Email",
         "Use this link to register your email " +
-          `https://escape-room-brlgb.ondigitalocean.app/register?email=${name}&secureidlol=${superDuperId}`
+          `https://escape-room-brlgb.ondigitalocean.app/register?email=${name}&secureIdLol=${superDuperId}`
       );
       setTimeout(() => {
         delete tempUsers[name];
