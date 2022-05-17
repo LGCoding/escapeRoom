@@ -112,7 +112,7 @@ app.post("/submit-form/cards.php", (req, res) => {
       }
 
       users[j].cards = startCards;
-      users[j].videos = [["lockImages/start.mov", "Start"]];
+      users[j].videos = [["lockImages/start.mp4", "Start"]];
       users[j].done = false;
     }
     wasChangeUsers = true;
@@ -182,7 +182,7 @@ app.post("/submit-form/locks.php", (req, res) => {
       }
 
       users[j].cards = startCards;
-      users[j].videos = [["lockImages/start.mov", "Start"]];
+      users[j].videos = [["lockImages/start.mp4", "Start"]];
       users[j].done = false;
     }
     wasChangeUsers = true;
@@ -236,7 +236,7 @@ io.on("connection", (socket) => {
       tempUsers[value.email] = {
         password: value.password,
         isAdmin: false,
-        videos: [["lockImages/start.mov", "Start"]],
+        videos: [["lockImages/start.mp4", "Start"]],
         secureIdLol: superDuperId,
         timeout: setTimeout(() => {
           delete tempUsers[name];
@@ -257,7 +257,7 @@ io.on("connection", (socket) => {
       }
 
       tempUsers[name].cards = startCards;
-      tempUsers[name].videos = [["lockImages/start.mov", "Start"]];
+      tempUsers[name].videos = [["lockImages/start.mp4", "Start"]];
       tempUsers[name].done = false;
       sendEmail(
         name,
@@ -291,7 +291,7 @@ io.on("connection", (socket) => {
     }
 
     users[value].cards = startCards;
-    users[value].videos = [["lockImages/start.mov", "Start"]];
+    users[value].videos = [["lockImages/start.mp4", "Start"]];
     users[value].done = false;
     wasChangeUsers = true;
     requestAllData();
@@ -403,7 +403,7 @@ io.on("connection", (socket) => {
       }
 
       users[j].cards = startCards;
-      users[j].videos = [["lockImages/start.mov", "Start"]];
+      users[j].videos = [["lockImages/start.mp4", "Start"]];
       users[j].done = false;
     }
     wasChangeUsers = true;
@@ -439,7 +439,7 @@ io.on("connection", (socket) => {
       }
 
       users[j].cards = startCards;
-      users[j].videos = [["lockImages/start.mov", "Start"]];
+      users[j].videos = [["lockImages/start.mp4", "Start"]];
       users[j].done = false;
     }
     wasChangeUsers = true;
@@ -586,7 +586,7 @@ io.on("connection", (socket) => {
     }
 
     users[name].cards = startCards;
-    users[name].videos = [["lockImages/start.mov", "Start"]];
+    users[name].videos = [["lockImages/start.mp4", "Start"]];
     users[name].done = false;
     wasChangeUsers = true;
   }
