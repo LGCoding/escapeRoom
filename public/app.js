@@ -555,14 +555,21 @@ function makeCards() {
     let cardBase = document.createElement("div");
     cardBase.setAttribute("namel", uCards[i].name);
     cardBase.className = "cards";
+    if (isCardEdit || isCardDelete) {
+      cardBase.innerHTML += uCards[i].name;
+      cardBase.style.backgroundColor = "red";
+      cardBase.style.textAlign = "center";
+    } else {
+      cardBase.style.height = uCards[i].sizeY + "px";
+    }
     let cardImage = document.createElement("img");
     cardImage.src = "cardImages/" + uCards[i].name + "." + uCards[i].type;
     cardImage.width = uCards[i].sizeX;
     cardBase.style.width = uCards[i].sizeX + "px";
     cardImage.height = uCards[i].sizeY;
-    cardBase.style.height = uCards[i].sizeY + "px";
     cardBase.appendChild(cardImage);
     document.getElementById("cardsPageDiv").appendChild(cardBase);
+
     cardBase.addEventListener("click", function () {
       if (isCardEdit) {
         document.getElementById("cardMaker").style.display = "block";
@@ -864,12 +871,14 @@ socket.on("makepopup", function (name) {
 function openLockMaker() {
   document.getElementById("lockMaker").style.display = "block";
   document.getElementById("lockMaker").reset();
+  document.getElementById("lockImageLabel").innerHTML = "Upload image";
   document.getElementById("openLockImageLabel").innerText = "Upload image";
 }
 
 function openCardMaker() {
   document.getElementById("cardMaker").style.display = "block";
   document.getElementById("cardMaker").reset();
+  document.getElementById("cardImageLabel").innerHTML = "Upload image";
   document.getElementById("cardNameInput").innerText = "Upload image";
 }
 

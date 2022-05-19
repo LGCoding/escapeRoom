@@ -599,34 +599,30 @@ io.on("connection", (socket) => {
 
 setInterval(function () {
   if (wasChangeUsers) {
-    fs.writeFile("userData.json", JSON.stringify(users), (err) => {
+    fs.writeFile("./userData.json", JSON.stringify(users), (err) => {
       // Checking for errors
       if (err) throw err;
-
-      console.log("Done writing"); // Success
+      else console.log("Done writing users"); // Success
     });
     wasChangeUsers = false;
   }
   if (wasChangeCards) {
-    fs.writeFile("cards.json", JSON.stringify(cards), (err) => {
+    fs.writeFile("./cards.json", JSON.stringify(cards), (err) => {
       // Checking for errors
       if (err) throw err;
-
-      console.log("Done writing"); // Success
+      else console.log("Done writing cards"); // Success
     });
     wasChangeCards = false;
   }
   if (wasChangeLocks) {
-    fs.writeFile("locks.json", JSON.stringify(locks), (err) => {
+    fs.writeFile("./locks.json", JSON.stringify(locks), (err) => {
       // Checking for errors
       if (err) throw err;
-
-      console.log("Done writing"); // Success
+      else console.log("Done writing locks"); // Success
     });
-    console.log("Done writing");
     wasChangeLocks = false;
   }
 }, 10000);
-server.listen(process.env.PORT || 3000, () => {
-  console.log("listening on *:" + (process.env.PORT || 3000));
+server.listen(process.env.PORT || 80, () => {
+  console.log("listening on *:" + (process.env.PORT || 80));
 });
