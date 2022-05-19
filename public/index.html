@@ -141,7 +141,14 @@
             Delete</button
           ><br />
           <div style="border: 0.02rem solid"></div>
-          Cards<br />
+          Cards
+          <input
+            type="text"
+            id="searchCards"
+            class="admin"
+            placeholder="Search??"
+            onkeyup="searchCards(this)"
+          /><br />
 
           <div id="cardMakerOuter">
             <form
@@ -235,7 +242,14 @@
             Delete</button
           ><br />
           <div style="border: 0.02rem solid"></div>
-          Locks<br />
+          Locks
+          <input
+            type="text"
+            id="searchlock"
+            class="admin"
+            placeholder="Search??"
+            onkeyup="searchLocks(this)"
+          /><br />
           <div id="lockMakerOuter">
             <div id="lockOpener">
               <p style="margin: 0; text-align: center">Open Lock</p>
@@ -379,10 +393,11 @@
           be in the deepest depths of the internet, or the smallest kook on
           campus. The solutions to puzzles reveal unlock codes for locks.
 
-          <br /><br />Playspace: As we are not able to put physical locks on the
-          doors. The program will tell you what rooms you can go in. You are
-          still free to leave the rooms but qrcodes will not work unless you
-          have unlocked the door on the app.
+          <br /><br />Playspace: The game will span over the entire second
+          floor. As we are not able to put physical locks on the doors. The
+          program will tell you what rooms you can go in. You are still free to
+          leave the rooms but qrcodes will not work unless you have unlocked the
+          door on the app.
 
           <br /><br />End Goal: To unlock every lock and the receive a cash
           prize.
@@ -467,7 +482,14 @@
 
       <div id="emojiKeyboard" class="innerHoverElement">Emojies</div>
       <div id="cardInputSelector" class="innerHoverElement">
-        Cards<br />
+        Cards
+        <input
+          type="text"
+          id="searchCardinput"
+          class="admin"
+          placeholder="Search??"
+          onkeyup="searchCardInput(this)"
+        /><br />
         <br id="cardInputSelectorBr" /><button
           type="submit"
           class="clickyButton"
@@ -477,7 +499,14 @@
         </button>
       </div>
       <div id="lockInputSelector" class="innerHoverElement">
-        Locks<br />
+        Locks
+        <input
+          type="text"
+          id="searchLockinput"
+          class="admin"
+          placeholder="Search??"
+          onkeyup="searchLockInput(this)"
+        /><br />
         <br id="lockInputSelectorBr" /><button
           type="submit"
           class="clickyButton"

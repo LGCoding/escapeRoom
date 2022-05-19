@@ -203,6 +203,7 @@ function cardFocus() {
   for (let i in allCards) {
     if (cardInputTarget.id === "locksResultsRemove" || !allCards[i].start) {
       let item = document.createElement("div");
+      item.title = allCards[i].name;
       item.className = "cardItem";
       let checkboxButton = document.createElement("input");
       checkboxButton.className = "cardItemCheckbox";
@@ -247,6 +248,7 @@ function lockFocus() {
     if (!allLocks[i].start) {
       let item = document.createElement("div");
       item.className = "lockItem";
+      item.title = allLocks[i].name;
       let checkboxButton = document.createElement("input");
       checkboxButton.className = "lockItemCheckbox";
       checkboxButton.setAttribute("name", allLocks[i].name);
@@ -286,7 +288,7 @@ function navBarClick(that, toPlace) {
 //---------------------------------Login----------------------------------
 function login() {
   socket.emit("login", {
-    email: document.getElementById("email").value,
+    email: document.getElementById("email").value.toLowerCase(),
     password: document.getElementById("password").value,
   });
   return false;
@@ -583,6 +585,7 @@ function makeCards() {
         document.getElementById("cardNameInput").value = card.name;
         document.getElementById("sizeX").value = card.sizeX;
         document.getElementById("sizeY").value = card.sizeY;
+        document.getElementById("cardNameInput").disabled = true;
         document.getElementById("start").checked = card.start;
         document.getElementById("cardImageLabel").innerText =
           card.name + "." + card.type;
@@ -691,6 +694,7 @@ function makeLocks() {
         document.getElementById("locksResults").value = str;
         document.getElementById("comboInput").value = lock.combo;
         document.getElementById("displayInput").value = lock.displayName;
+        document.getElementById("lockNameInput").disabled = true;
         if (lock.isDisplay) {
           document.getElementById("openLockImageLabel").innerText =
             lock.name + "." + lock.type;
@@ -810,6 +814,58 @@ function editCards() {
   makeCards();
 }
 
+function searchCards(that) {
+  let string = that.value.toLowerCase();
+  let cardsItems = document.querySelectorAll(".cards");
+  for (let i of cardsItems) {
+    if (i.getAttribute("namel").toLowerCase().includes(string)) {
+      i.style.display = "inline-block";
+    } else {
+      i.style.display = "none";
+    }
+  }
+}
+
+function searchCardInput(that) {
+  let string = that.value.toLowerCase();
+  let cardsItems = document.querySelectorAll(".cardItem");
+  for (let i of cardsItems) {
+    if (
+      i.getElementsByTagName("input")[0].name.toLowerCase().includes(string)
+    ) {
+      i.style.display = "inline-block";
+    } else {
+      i.style.display = "none";
+    }
+  }
+}
+
+function searchLocks(that) {
+  let string = that.value.toLowerCase();
+  let locksItems = document.querySelectorAll(".locks");
+  for (let i of locksItems) {
+    if (i.getAttribute("namel").toLowerCase().includes(string)) {
+      i.style.display = "inline-block";
+    } else {
+      i.style.display = "none";
+    }
+  }
+}
+
+function searchLockInput(that) {
+  let string = that.value.toLowerCase();
+  let locksItems = document.querySelectorAll(".lockItem");
+  for (let i of locksItems) {
+    if (
+      i.getElementsByTagName("input")[0].name.toLowerCase().includes(string)
+    ) {
+      i.style.display = "inline-block";
+    } else {
+      i.style.display = "none";
+    }
+  }
+}
+
 //lock
 function unlock() {
   socket.emit(
@@ -870,14 +926,16 @@ socket.on("makepopup", function (name) {
 
 function openLockMaker() {
   document.getElementById("lockMaker").style.display = "block";
+  document.getElementById("lockNameInput").disabled = false;
   document.getElementById("lockMaker").reset();
-  document.getElementById("lockImageLabel").innerHTML = "Upload image";
+  document.getElementById("openLockImageLabel").innerHTML = "Upload image";
   document.getElementById("openLockImageLabel").innerText = "Upload image";
 }
 
 function openCardMaker() {
   document.getElementById("cardMaker").style.display = "block";
   document.getElementById("cardMaker").reset();
+  document.getElementById("cardNameInput").disabled = false;
   document.getElementById("cardImageLabel").innerHTML = "Upload image";
   document.getElementById("cardNameInput").innerText = "Upload image";
 }

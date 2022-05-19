@@ -339,6 +339,11 @@ io.on("connection", (socket) => {
 
       if (users[name].videos.length - 1 === Object.keys(locks).length) {
         users[name].done = true;
+        io.emit("makepopup", name.split("@")[0] + "Has finished the game");
+        socket.emit(
+          "makepopup",
+          "Great Job you finished You will get an email if you were the first to finish"
+        );
         let mailOptions = {
           from: "IDORANDOMTECHSTUFF@GMAIL.COM", // sender address
           to: "liamvgav@gmail.com", // list of receivers
