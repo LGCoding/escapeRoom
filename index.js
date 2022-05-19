@@ -377,7 +377,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("lockDelete", function (value) {
-    let path = "public/lockImages/" + value + "." + locks[value].type;
+    let path = "./public/lockImages/" + value + "." + locks[value].type;
     fs.unlink(path, (err) => {
       if (err) {
         console.error(err);
@@ -413,7 +413,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("cardDelete", function (value) {
-    let path = "public/cardImages/" + value + "." + cards[value].type;
+    let path = "./public/cardImages/" + value + "." + cards[value].type;
     fs.unlink(path, (err) => {
       if (err) {
         console.error(err);
