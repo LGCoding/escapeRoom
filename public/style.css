@@ -144,10 +144,10 @@ input {
   text-align: center;
   width: 60rem;
   font-size: 2rem;
-  height: 23rem;
+  height: 29rem;
   left: calc(50% - 30rem);
   position: absolute;
-  top: calc(50% - 11.5rem);
+  top: calc(50% - 14.5rem);
   background-image: var(--backgroundImage);
   border: 0.2rem solid;
   border-radius: 0.1rem;

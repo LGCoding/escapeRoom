@@ -45,6 +45,7 @@
         <div class="page pageActive" id="homePageDiv">
           Welcome Saint Sebastian's ARG Escape Room<br /><br />
           <div style="width: 500px" id="reader"></div>
+
           <!-- Scan Qrcode: <button class="clickyButton" id="scanQrcode">Scan</button><br> -->
           <p class="admin">Create Qrcode:</p>
           <button
@@ -53,7 +54,13 @@
             document.getElementById("qrcodeMaker").style.display="block" ;'
             id="createQrcode"
           >
-            Create
+            Create</button
+          ><br class="admin" /><br class="admin" />
+          <button
+            class="clickyButton"
+            onclick="localStorage.removeItem('email'); localStorage.removeItem('pass'); location.reload();"
+          >
+            Sign Out
           </button>
           <div id="lockMakerOuter">
             <form
@@ -471,13 +478,21 @@
 
     <div id="hoverDiv" class="noClickThrough">
       <form id="loginDiv" class="innerHoverElement">
-        Login: If it is the first time it will register you<br />
+        Login: If it is the first time it will register you don't use your REAL
+        PASSWORD<br />
         <label for="email">Email</label><br />
         <input required type="email" id="email" /><br />
         <label for="password">Password</label><br />
-        <input required type="password" id="password" /><br /><br />
+        <input required type="password" id="password" /><br />
+        <label for="stayLoggedIn">Stay Logged in</label
+        ><input
+          type="checkbox"
+          name="stayLoggedIn"
+          id="stayLoggedIn"
+        /><br /><br />
         <button class="clickyButton" id="loginButton">Login</button><br />
-        Contact us at: idorandomtechstuff@gmail.com
+        if you registered check your email Contact us at:
+        idorandomtechstuff@gmail.com
       </form>
 
       <div id="emojiKeyboard" class="innerHoverElement">Emojies</div>

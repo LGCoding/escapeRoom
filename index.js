@@ -1,11 +1,31 @@
 const express = require("express");
 const app = express();
+const https = require("https");
 const http = require("http");
-const server = http.createServer(app);
+
 const { Server } = require("socket.io");
-const io = new Server(server);
 const fs = require("fs");
 const formidable = require("formidable");
+
+const httpServer = http.createServer(function (req, res) {
+  // Set the response HTTP header with HTTP status and Content type
+  //res.redirect("https://idorandomtechstuff.com" + req.url);
+  res
+    .writeHead(301, {
+      Location: `https://idorandomtechstuff.com`,
+    })
+    .end();
+});
+
+const httpsServer = https.createServer(
+  {
+    key: fs.readFileSync("./private.key"),
+    cert: fs.readFileSync("./certificate.crt"),
+  },
+  app
+);
+
+const io = new Server(httpsServer);
 
 const userData = require("./userData");
 const cardsData = require("./cards");
@@ -20,11 +40,6 @@ let wasChangeUsers = false;
 let wasChangeCards = false;
 let wasChangeLocks = false;
 
-// app.use(function (req, res, next) {
-//     //console.log(req.protocol + "://" + req.get("host") + req.originalUrl);
-//     next();
-// });
-
 const nodemailer = require("nodemailer");
 
 let transporter = nodemailer.createTransport({
@@ -37,7 +52,7 @@ let transporter = nodemailer.createTransport({
       "97976407358-8so1bb1nt7c8utfsu76b4n7311g63sk8.apps.googleusercontent.com",
     clientSecret: "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",
     refreshToken:
-      "1//04QTJS64GY0qWCgYIARAAGAQSNwF-L9IrH-DknFtVMxiC6p9oUYXidoOQv66zGKVtZzMqv_7HuU4VASXd1-b233LvsofXDFdxBAc",
+      "1//043m_CpK5IsYTCgYIARAAGAQSNwF-L9IrpSjGsnv6BHunVarYQ16KhwV2RP-6vxPnxG1ltrrycbIKgeLDqZQ1POm_NcBbYHMfQzI",
   },
 });
 
@@ -73,7 +88,6 @@ app.post("/submit-form/cards.php", (req, res) => {
       throw err;
     }
     var oldpath = files.cardImageInput.filepath;
-    //console.log(files.cardImageInput);
     var newpath =
       "./public/cardImages/" +
       fields.cardName +
@@ -89,7 +103,6 @@ app.post("/submit-form/cards.php", (req, res) => {
       res.write("File uploaded and moved!");
       res.end();
     });
-    console.log(fields);
     cards[fields.cardName] = {
       name: fields.cardName,
       sizeX: parseInt(fields.sizeX),
@@ -102,7 +115,6 @@ app.post("/submit-form/cards.php", (req, res) => {
     wasChangeCards = true;
     io.emit("sendAllCardData", cards);
     for (let j in users) {
-      console.log(j);
       users[j].locks = Object.values(locks);
       let startCards = [];
       for (let i in cards) {
@@ -121,14 +133,12 @@ app.post("/submit-form/cards.php", (req, res) => {
 });
 
 app.post("/submit-form/locks.php", (req, res) => {
-  console.log("in");
   new formidable.IncomingForm().parse(req, (err, fields, files) => {
     if (err) {
       console.error("Error", err);
       throw err;
     }
     let temp;
-    console.log(files.openLockImageInput.originalFilename);
     if (files.openLockImageInput && files.openLockImageInput.originalFilename) {
       var oldpath = files.openLockImageInput.filepath;
       var newpath =
@@ -172,7 +182,6 @@ app.post("/submit-form/locks.php", (req, res) => {
     };
     wasChangeLocks = true;
     for (let j in users) {
-      console.log(j);
       users[j].locks = Object.values(locks);
       let startCards = [];
       for (let i in cards) {
@@ -208,7 +217,6 @@ function sendEmail(to, subject, text) {
 }
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
   let name = "";
   socket.on("login", function (value) {
     if (users[value.email]) {
@@ -263,13 +271,12 @@ io.on("connection", (socket) => {
         name,
         "Please Register Your Email",
         "Use this link to register your email " +
-          `https://escape-room-brlgb.ondigitalocean.app/register?email=${name}&secureIdLol=${superDuperId}`
+          `https://idorandomtechstuff.com/register?email=${name}&secureIdLol=${superDuperId}`
       );
     }
   });
 
   socket.on("makeAdmin", (value) => {
-    console.log("in");
     users[value].isAdmin = !users[value].isAdmin;
     wasChangeUsers = true;
     requestAllData();
@@ -324,18 +331,17 @@ io.on("connection", (socket) => {
           users[name].cards.push(cards[locks[lname].lockResults[i]]);
       }
       let toRemove = locks[lname].toRemove.split(", ");
-      console.log(toRemove);
       while (toRemove.length) {
-        console.log(users[name].cards);
+        let foundCard = false;
         for (let i = 0; i < users[name].cards.length; i++) {
-          if (users[name].cards[i].name === toRemove[0]) {
+          if (users[name].cards[i].name == toRemove[0]) {
             toRemove.shift();
+            foundCard = true;
             users[name].cards.splice(i, 1);
           }
         }
-        toRemove.shift();
+        if (!foundCard) toRemove.shift();
       }
-      console.log("in");
 
       if (users[name].videos.length - 1 === Object.keys(locks).length) {
         users[name].done = true;
@@ -398,7 +404,6 @@ io.on("connection", (socket) => {
     }
     delete locks[value];
     for (let j in users) {
-      console.log(j);
       users[j].locks = Object.values(locks);
       let startCards = [];
       for (let i in cards) {
@@ -434,7 +439,6 @@ io.on("connection", (socket) => {
     }
     delete cards[value];
     for (let j in users) {
-      console.log(j);
       users[j].locks = Object.values(locks);
       let startCards = [];
       for (let i in cards) {
@@ -458,12 +462,9 @@ io.on("connection", (socket) => {
       socket.emit("reload");
       return;
     }
-    console.log("on");
     let col = value.split(":");
-    console.log("thing", col, value);
     let locks = col[0].split(", ");
     let hasLock = false;
-    console.log(locks);
     let hasLocks = "";
     for (let i in users[name].locks) {
       for (let j in locks) {
@@ -485,7 +486,6 @@ io.on("connection", (socket) => {
         ) {
           let hasCard = false;
           for (let j in users[name].cards) {
-            console.log(users[name].cards[j], vCards[i]);
             if (users[name].cards[j].name === vCards[i]) hasCard = true;
           }
           if (!hasCard) users[name].cards.push(cards[vCards[i]]);
@@ -564,7 +564,6 @@ io.on("connection", (socket) => {
         totalLocks: Object.keys(locks).length,
       });
     }
-    console.log("inProg");
     io.emit("sendUserProg", nUsers);
   }
   //-------------------------LockHandleing------------------------------
@@ -573,7 +572,15 @@ io.on("connection", (socket) => {
       socket.emit("reload");
       return;
     }
-    socket.emit("sendLockData", users[person].locks);
+    let toSend = [];
+    for (let i in users[person].locks) {
+      toSend.push({
+        name: users[person].locks[i].name,
+        displayName: users[person].locks[i].displayName,
+        isDisplay: users[person].locks[i].isDisplay,
+      });
+    }
+    socket.emit("sendLockData", toSend);
   }
   //-------------------------BothHandleing------------------------------
   function reset() {
@@ -581,7 +588,6 @@ io.on("connection", (socket) => {
       socket.emit("reload");
       return;
     }
-    console.log(name);
     users[name].locks = Object.values(locks);
     let startCards = [];
     for (let i in cards) {
@@ -597,7 +603,6 @@ io.on("connection", (socket) => {
   }
 
   function requestAllData() {
-    console.log("inRequest");
     io.emit("requestAllData");
   }
 });
@@ -628,6 +633,11 @@ setInterval(function () {
     wasChangeLocks = false;
   }
 }, 10000);
-server.listen(process.env.PORT || 80, () => {
-  console.log("listening on *:" + (process.env.PORT || 80));
+
+httpsServer.listen(443, () => {
+  console.log("listening on port 443");
+});
+
+httpServer.listen(80, () => {
+  console.log("listening on port 80");
 });

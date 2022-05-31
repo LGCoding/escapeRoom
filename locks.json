@@ -1,1 +1,29 @@
-{"Liam":{"name":"Liam","lockResults":["Cipher1","factor2"],"combo":"0000","displayName":"x♚d","toRemove":"room1, ","isDisplay":true,"type":"png"}}
+{
+  "start": {
+    "name": "start",
+    "lockResults": ["room1", "room2"],
+    "combo": "6157",
+    "displayName": "☁★♛",
+    "toRemove": "Card1, ",
+    "isDisplay": true,
+    "type": "png"
+  },
+  "room": {
+    "name": "room",
+    "lockResults": ["stock1", "stock2"],
+    "combo": "3251",
+    "displayName": "✦☁✸",
+    "toRemove": "room1, room2, ",
+    "isDisplay": true,
+    "type": "png"
+  },
+  "stock": {
+    "name": "stock",
+    "lockResults": ["redscrible1"],
+    "combo": "3251",
+    "displayName": "☎♠►",
+    "toRemove": "stock1, stock2, ",
+    "isDisplay": true,
+    "type": "png"
+  }
+}

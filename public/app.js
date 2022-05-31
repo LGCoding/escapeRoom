@@ -47,6 +47,12 @@ var isKeyPressed = {
 };
 
 function init() {
+  if (localStorage.getItem("email") && localStorage.getItem("email") !== "") {
+    socket.emit("login", {
+      email: localStorage.getItem("email"),
+      password: localStorage.getItem("pass"),
+    });
+  }
   document.onkeydown = (keyDownEvent) => {
     isKeyPressed[keyDownEvent.key] = true;
     if (isKeyPressed["q"] && keyDownEvent.ctrlKey) {
@@ -94,6 +100,17 @@ function init() {
     .addEventListener("click", lockInputSubmit);
 
   document.getElementById("submitLockOpener").addEventListener("click", unlock);
+  document
+    .getElementById("lockOpenerInput")
+    .addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        socket.emit(
+          "unlock",
+          document.getElementById("submitLockOpener").getAttribute("nameL"),
+          document.getElementById("lockOpenerInput").value
+        );
+      }
+    });
   for (let i in chars) {
     let b = document.createElement("label");
     b.className = "emojiButton";
@@ -124,7 +141,6 @@ function init() {
     }
     let imgs = document.getElementsByTagName("img");
     for (let i of imgs) {
-      console.log("ins", i);
       if (imgs[i] && imgs[i].alt === "Info icon") {
         imgs[i].style["z-index"] = 0;
       }
@@ -287,6 +303,13 @@ function navBarClick(that, toPlace) {
 
 //---------------------------------Login----------------------------------
 function login() {
+  if (document.getElementById("stayLoggedIn").value) {
+    localStorage.setItem(
+      "email",
+      document.getElementById("email").value.toLowerCase()
+    );
+    localStorage.setItem("pass", document.getElementById("password").value);
+  }
   socket.emit("login", {
     email: document.getElementById("email").value.toLowerCase(),
     password: document.getElementById("password").value,
@@ -371,7 +394,6 @@ function fetchpostLock() {
         break;
       }
     }
-    console.log("ins");
     if (lock.type !== "") {
       // let canvas = document.createElement("canvas");
       // let ctx = canvas.getContext("2d");
@@ -513,7 +535,6 @@ socket.on("sendVideoData", function (value) {
     i.remove();
   }
   for (let i in videos) {
-    console.log(typeof videos[i][0]);
     let type = videos[i][0].split(".")[videos[i][0].split(".").length - 1];
     let div = document.createElement("div");
     div.className = "videoDiv";
@@ -585,7 +606,7 @@ function makeCards() {
         document.getElementById("cardNameInput").value = card.name;
         document.getElementById("sizeX").value = card.sizeX;
         document.getElementById("sizeY").value = card.sizeY;
-        document.getElementById("cardNameInput").disabled = true;
+        //document.getElementById("cardNameInput").disabled = true;
         document.getElementById("start").checked = card.start;
         document.getElementById("cardImageLabel").innerText =
           card.name + "." + card.type;
@@ -694,7 +715,7 @@ function makeLocks() {
         document.getElementById("locksResults").value = str;
         document.getElementById("comboInput").value = lock.combo;
         document.getElementById("displayInput").value = lock.displayName;
-        document.getElementById("lockNameInput").disabled = true;
+        //document.getElementById("lockNameInput").disabled = true;
         if (lock.isDisplay) {
           document.getElementById("openLockImageLabel").innerText =
             lock.name + "." + lock.type;
@@ -718,6 +739,7 @@ function makeLocks() {
         document.getElementById("lockOpener").style.display = "block";
         document.getElementById("lockOpenerName").innerText =
           this.innerText.trim();
+        document.getElementById("lockOpenerInput").focus();
 
         document
           .getElementById("submitLockOpener")
@@ -743,7 +765,6 @@ function makeProgs() {
       "/" +
       uProgs[i].totalLocks +
       "<br>";
-    console.log(progBase);
     document.getElementById("othersPageDiv").appendChild(progBase);
   }
 }
@@ -926,7 +947,7 @@ socket.on("makepopup", function (name) {
 
 function openLockMaker() {
   document.getElementById("lockMaker").style.display = "block";
-  document.getElementById("lockNameInput").disabled = false;
+  //document.getElementById("lockNameInput").disabled = false;
   document.getElementById("lockMaker").reset();
   document.getElementById("openLockImageLabel").innerHTML = "Upload image";
   document.getElementById("openLockImageLabel").innerText = "Upload image";
@@ -935,7 +956,7 @@ function openLockMaker() {
 function openCardMaker() {
   document.getElementById("cardMaker").style.display = "block";
   document.getElementById("cardMaker").reset();
-  document.getElementById("cardNameInput").disabled = false;
+  //document.getElementById("cardNameInput").disabled = false;
   document.getElementById("cardImageLabel").innerHTML = "Upload image";
   document.getElementById("cardNameInput").innerText = "Upload image";
 }
